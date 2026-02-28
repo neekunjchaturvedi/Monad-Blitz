@@ -1,0 +1,14 @@
+{
+  "name": "agenthub-contracts",
+  "version": "1.0.0",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "deploy": "npx hardhat run scripts/deploy.ts --network monad_testnet"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
+    "dotenv": "^16.4.1",
+    "hardhat": "^2.22.0",
+    "viem": "^2.0.0"
+  }
+}

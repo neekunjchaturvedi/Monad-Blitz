@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Agent {
+  id           String      @id @default(uuid())
+  ownerWallet  String      @map("owner_wallet")
+  name         String
+  description  String      @default("")
+  category     Category
+  status       AgentStatus @default(IDLE)
+  isPublic     Boolean     @default(false) @map("is_public")
+  config       Json        @default("{}")
+  runCount     Int         @default(0) @map("run_count")
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  wallet       AgentWallet?
+  logs         AgentLog[]
+
+  @@index([ownerWallet])
+  @@index([category, status])
+  @@map("agents")
+}
+
+model AgentWallet {
+  id                  String   @id @default(uuid())
+  agentId             String   @unique @map("agent_id")
+  address             String   @unique
+  encryptedPrivateKey String   @map("encrypted_private_key")
+  balanceMon          String   @default("0") @map("balance_mon")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  agent               Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@map("agent_wallets")
+}
+
+model AgentLog {
+  id        String   @id @default(uuid())
+  agentId   String   @map("agent_id")
+  action    String
+  result    String
+  txHash    String?  @map("tx_hash")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@index([agentId, createdAt(sort: Desc)])
+  @@map("agent_logs")
+}
+
+enum Category {
+  sniper
+  bundler
+  launcher
+  custom
+}
+
+enum AgentStatus {
+  IDLE
+  RUNNING
+  PAUSED
+  ERROR
+}
